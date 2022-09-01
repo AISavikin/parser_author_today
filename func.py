@@ -7,14 +7,11 @@ from FB2 import FictionBook2, Author
 import requests
 
 
+
 class AuthorToday:
 
     def __init__(self, url):
         self.url = url
-        self.driver = self.selenium_setup()
-        self.book_info = self.get_book_info()
-        self.text_book = self.get_text_book()
-        self.create_fb2()
 
     @staticmethod
     def selenium_setup():
@@ -22,11 +19,15 @@ class AuthorToday:
         Устанавливает и возвращает драйвер selenium
         :return: selenium.webdriver.chrome.webdriver.WebDriver
         """
+        options = webdriver.chrome.options.Options()
+        options.add_argument('--headless')
+        options.add_argument('--disable-gpu')
         chromedriver_autoinstaller.install()
-        driver = webdriver.Chrome()
+        driver = webdriver.Chrome(options=options)
         return driver
 
     def get_book_info(self):
+        print('Собираю данные о книге')
         driver = self.driver
         driver.get(self.url)
         title = driver.find_element(By.CLASS_NAME, 'book-title').text
@@ -82,9 +83,15 @@ class AuthorToday:
         book.chapters = self.text_book
         book.write(f'{self.book_info["title"]}.fb2')
 
+    def start(self):
+        self.driver = self.selenium_setup()
+        self.book_info = self.get_book_info()
+        self.text_book = self.get_text_book()
+        self.create_fb2()
 
 def main():
-    at = AuthorToday('https://author.today/work/210008')
+    url = input('Введите адрес ссылки: ')
+    AuthorToday(url)
 
 
 if __name__ == '__main__':
